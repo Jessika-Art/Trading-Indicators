@@ -23,6 +23,7 @@ Some Trading Indicators Build From Scratch
 16 ] Mountain Nort, Mountain South, Higher-High & Lower-Low
 17 ] Slope
 18 ] Trend
+19 ] Heikin Ashi Candels
 
 
 '''
@@ -296,7 +297,7 @@ def Slope(df: pd.DataFrame, N=8):
 # --------------------------------------------------------------------------- #
 def Trend(df: pd.DataFrame, Length=50, n_candles=6):
     df['Simple_Moving_Avarage'] = df.close.rolling(window=Length).mean()
-    # df['Ex_Moving_Avarage'] = df.close.ewm(span=Length, adjust=True).mean() # uncomment this one for EMA
+    # df['Ex_Moving_Avarage'] = df.ewm(span=Length, adjust=True).mean() # uncomment this one for EMA
     Mov_Ava = [0] * len(df)
     backcandles = n_candles
     for row in range(backcandles, len(df)):
@@ -314,6 +315,33 @@ def Trend(df: pd.DataFrame, Length=50, n_candles=6):
         if dnt == 1:
             Mov_Ava[row] = 1 # down
     df['Trend_SMA'] = Mov_Ava
+
+    return df
+
+
+# Heikin Ashi
+# --------------------------------------------------------------------------- #
+def Heikin_Ashi(df: pd.DataFrame):
+    ha_df = pd.DataFrame(columns=df.columns)
+    # Set the values of the first row of ha_df
+    ha_df.loc[0, 'time'] = df.loc[0, 'time']
+    ha_df.loc[0, 'ha_o'] = df.loc[0, 'open']
+    ha_df.loc[0, 'ha_h'] = df.loc[0, 'high']
+    ha_df.loc[0, 'ha_l'] = df.loc[0, 'low']
+    ha_df.loc[0, 'ha_c'] = df.loc[0, 'close']
+
+    # Iterate over the remaining rows of df
+    for i in range(1, df.shape[0]):
+        ha_df.loc[i, 'time'] = df.loc[i, 'time']
+        ha_df.loc[i, 'ha_o'] = (ha_df.loc[i-1, 'ha_o'] + ha_df.loc[i-1, 'ha_c']) / 2
+        ha_df.loc[i, 'ha_h'] = max(df.loc[i, 'high'], ha_df.loc[i, 'ha_o'], ha_df.loc[i, 'ha_c'])
+        ha_df.loc[i, 'ha_l'] = min(df.loc[i, 'low'], ha_df.loc[i, 'ha_o'], ha_df.loc[i, 'ha_c'])
+        ha_df.loc[i, 'ha_c'] = (df.loc[i, 'open'] + df.loc[i, 'close'] + df.loc[i, 'low'] + df.loc[i, 'high']) / 4
+
+    ha_df = ha_df.drop(columns=['open', 'high', 'low', 'close'])
+    ha_df = ha_df.rename({'ha_o':'open','ha_h':'high','ha_l':'low','ha_c':'close'}, axis=1)
+
+    df = ha_df.copy()
 
     return df
 
