@@ -296,7 +296,7 @@ def Slope(df: pd.DataFrame, N=8):
 # --------------------------------------------------------------------------- #
 def Trend(df: pd.DataFrame, Length=50, n_candles=6):
     df['Simple_Moving_Avarage'] = df.close.rolling(window=Length).mean()
-    # df['Ex_Moving_Avarage'] = df.ewm(span=Length, adjust=True).mean() # uncomment this one for EMA
+    # df['Ex_Moving_Avarage'] = df.close.ewm(span=Length, adjust=True).mean() # uncomment this one for EMA
     Mov_Ava = [0] * len(df)
     backcandles = n_candles
     for row in range(backcandles, len(df)):
