@@ -18,3 +18,4 @@
 16 ] Mountain Nort, Mountain South, Higher-High & Lower-Low;
 17 ] Slope;
 18 ] Trend;
+19 ] Heikin Ashi Candels;
